@@ -1,3 +1,4 @@
+/* styles.css */
 body,
 html {
     margin: 0;
@@ -11,9 +12,7 @@ html {
     flex-direction: column;
 }
 
-#canvas {
-    border: 1px solid black;
-}
+#canvas {}
 
 #clearButton {
     margin-top: 20px;

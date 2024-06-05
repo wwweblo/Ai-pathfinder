@@ -1,42 +1,58 @@
-// Инициализация холста и сетки
+// script.js
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
+const padding = 100;
 const rows = 50;
 const cols = 50;
-const cellSize = canvas.width / cols;
-const grid = [];
+let cellSize;
+let grid = [];
 
-// Заполнение сетки
-for (let i = 0; i < rows; i++) {
-    grid[i] = [];
-    for (let j = 0; j < cols; j++) {
-        grid[i][j] = { x: j, y: i, wall: false };
+function initializeCanvas() {
+    canvas.width = window.innerWidth - 2 * padding;
+    canvas.height = window.innerHeight - 2 * padding;
+    cellSize = Math.min(canvas.width / cols, canvas.height / rows);
+    grid = [];
+
+    for (let i = 0; i < rows; i++) {
+        grid[i] = [];
+        for (let j = 0; j < cols; j++) {
+            grid[i][j] = { x: j, y: i, wall: false };
+        }
     }
+    drawGrid();
 }
 
-// Обработчики событий для рисования препятствий
+function resizeCanvas() {
+    initializeCanvas();
+}
 
+window.addEventListener('resize', resizeCanvas);
+initializeCanvas();
+
+// Обработчики событий для рисования препятствий
 let drawing = false;
 
 canvas.addEventListener('mousedown', () => drawing = true);
 canvas.addEventListener('mouseup', () => drawing = false);
 canvas.addEventListener('mousemove', function (event) {
     if (drawing) {
-        const x = Math.floor(event.clientX / cellSize);
-        const y = Math.floor(event.clientY / cellSize);
-        if (x < cols && y < rows && x >= 0 && y >= 0) {
-            grid[y][x].wall = true;
-            drawGrid();
-        }
+        updateGridOnMouseMove(event);
     }
 });
 
-//Функция для отрисовки сетки
+function updateGridOnMouseMove(event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor((event.clientX - rect.left) / cellSize);
+    const y = Math.floor((event.clientY - rect.top) / cellSize);
+    if (x < cols && y < rows && x >= 0 && y >= 0) {
+        grid[y][x].wall = true;
+        drawGrid();
+    }
+}
 
+// Функция для отрисовки сетки
 function drawGrid() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (let i = 0; i < rows; i++) {
@@ -50,16 +66,17 @@ function drawGrid() {
         }
     }
 }
-/*Эвристическая функция. Вычисляет манхэттенское расстояние между двумя точками a и b.
-Это используется в алгоритме A* для оценки расстояния до конечной точки.
+
+/* Эвристическая функция. Вычисляет манхэттенское расстояние между двумя точками a и b.
+   Это используется в алгоритме A* для оценки расстояния до конечной точки.
 */
 function heuristic(a, b) {
     return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
-/*Алгоритм A*
-Использует открытый и закрытый наборы для отслеживания посещенных и непосещенных узлов.
-cameFrom хранит путь, gScore и fScore содержат стоимости пути для каждого узла.
+/* Алгоритм A*
+   Использует открытый и закрытый наборы для отслеживания посещенных и непосещенных узлов.
+   cameFrom хранит путь, gScore и fScore содержат стоимости пути для каждого узла.
 */
 function AStar(start, end) {
     const openSet = [start];
@@ -112,6 +129,7 @@ function getNeighbors(node) {
     if (y < rows - 1) neighbors.push(grid[y + 1][x]);
     return neighbors;
 }
+
 // Анимация пути
 function animatePath(path) {
     let i = 0;
