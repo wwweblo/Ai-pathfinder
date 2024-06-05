@@ -8,11 +8,16 @@ const rows = 50;
 const cols = 50;
 let cellSize;
 let grid = [];
+let animationFrameId;
 
 function initializeCanvas() {
-    canvas.width = window.innerWidth - 2 * padding;
-    canvas.height = window.innerHeight - 2 * padding;
-    cellSize = Math.min(canvas.width / cols, canvas.height / rows);
+    const availableWidth = window.innerWidth - 2 * padding;
+    const availableHeight = window.innerHeight - 2 * padding;
+    cellSize = Math.min(availableWidth / cols, availableHeight / rows);
+    canvas.width = cellSize * cols;
+    canvas.height = cellSize * rows;
+    canvas.style.width = `${canvas.width}px`;
+    canvas.style.height = `${canvas.height}px`;
     grid = [];
 
     for (let i = 0; i < rows; i++) {
@@ -133,6 +138,7 @@ function getNeighbors(node) {
 // Анимация пути
 function animatePath(path) {
     let i = 0;
+
     function drawStep() {
         if (i < path.length) {
             const node = path[i];
@@ -141,8 +147,15 @@ function animatePath(path) {
             ctx.arc(node.x * cellSize + cellSize / 2, node.y * cellSize + cellSize / 2, cellSize / 4, 0, 2 * Math.PI);
             ctx.fill();
             i++;
-            requestAnimationFrame(drawStep);
+            animationFrameId = requestAnimationFrame(drawStep);
+        } else {
+            // Начинаем новый путь, если предыдущий путь завершился
+            updatePath();
         }
+    }
+
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
     }
     drawStep();
 }
@@ -150,8 +163,16 @@ function animatePath(path) {
 const start = grid[Math.floor(rows / 2)][0];
 const end = grid[Math.floor(rows / 2)][cols - 1];
 
-setInterval(() => {
+function updatePath() {
     drawGrid();
     const path = AStar(start, end);
-    if (path.length > 0) animatePath(path);
-}, 2000);
+    if (path.length > 0) {
+        animatePath(path);
+    } else {
+        // Если путь не найден, пробуем снова через некоторое время
+        setTimeout(updatePath, 2000);
+    }
+}
+
+// Начинаем первый поиск пути
+updatePath();
