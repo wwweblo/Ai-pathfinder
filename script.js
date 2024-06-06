@@ -4,6 +4,7 @@ const ctx = canvas.getContext('2d');
 const padding = 100;
 const rows = 50;
 const cols = 50;
+
 let cellSize;
 let grid = [];
 let animationFrameId;
@@ -120,10 +121,22 @@ async function AStar(start, end) {
 function getNeighbors(node) {
     const neighbors = [];
     const { x, y } = node;
+    const bishopMovement = document.getElementById('bishopMovementCheckbox').checked;
+
+    // Прямые соседи
     if (x > 0) neighbors.push(grid[y][x - 1]);
     if (x < cols - 1) neighbors.push(grid[y][x + 1]);
     if (y > 0) neighbors.push(grid[y - 1][x]);
     if (y < rows - 1) neighbors.push(grid[y + 1][x]);
+
+    // Диагональные соседи
+    if (bishopMovement) {
+        if (x > 0 && y > 0) neighbors.push(grid[y - 1][x - 1]);
+        if (x < cols - 1 && y > 0) neighbors.push(grid[y - 1][x + 1]);
+        if (x > 0 && y < rows - 1) neighbors.push(grid[y + 1][x - 1]);
+        if (x < cols - 1 && y < rows - 1) neighbors.push(grid[y + 1][x + 1]);
+    }
+
     return neighbors;
 }
 
@@ -150,10 +163,18 @@ async function animatePath(path) {
     drawStep();
 }
 
-const start = grid[Math.floor(rows / 2)][0];
-const end = grid[Math.floor(rows / 2)][cols - 1];
-
 async function updatePath() {
+    const bishopSpawn = document.getElementById('bishopSpawn').checked;
+    let start, end;
+
+    if (bishopSpawn) {
+        start = grid[0][0];
+        end = grid[rows - 1][cols - 1];
+    } else {
+        start = grid[Math.floor(rows / 2)][0];
+        end = grid[Math.floor(rows / 2)][cols - 1];
+    }
+
     setButtonLoading(true);
     const path = await AStar(start, end);
     if (path.length > 0) {

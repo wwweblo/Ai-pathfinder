@@ -9,9 +9,26 @@
 </head>
 
 <body>
+    <div class="settings">
+        <div class="movementSettings">
+            <input type="checkbox" id="bishopMovementCheckbox">
+            <label for="bishopMovementCheckbox">Are horisontal moves able?</label>
+        </div>
+
+        <span id="spawnSettings">
+            <input type="radio" id="rookSpawn" name="spawn" checked="true">
+            <label for="rookSpawn">Horisontal start</label>
+
+            <input type="radio" id="bishopSpawn" name="spawn">
+            <label for="bishopSpawn">Diagonal start</label>
+        </span>
+    </div>
     <canvas id="canvas"></canvas>
-    <button id="find-path">🔎Find Path</button>
-    <button id="clear-obstacles">🧹Clear</button>
+    <button id="find-path">
+        <span id="button-text">🔎Find Path</span>
+        <span id="loading-spinner" class="loading-spinner hidden"></span>
+    </button>
+    <button id="clear-obstacles">🧹Clear Obstacles</button>
     <script src="script.js"></script>
 </body>
 
