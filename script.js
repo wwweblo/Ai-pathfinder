@@ -139,6 +139,8 @@ async function animatePath(path) {
             ctx.fill();
             i++;
             animationFrameId = requestAnimationFrame(drawStep);
+        } else {
+            resetButton();
         }
     }
 
@@ -152,11 +154,30 @@ const start = grid[Math.floor(rows / 2)][0];
 const end = grid[Math.floor(rows / 2)][cols - 1];
 
 async function updatePath() {
+    setButtonLoading(true);
     const path = await AStar(start, end);
     if (path.length > 0) {
         drawGrid();
         await animatePath(path);
+    } else {
+        resetButton();
     }
+}
+
+function setButtonLoading(isLoading) {
+    const buttonText = document.getElementById('button-text');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    if (isLoading) {
+        buttonText.classList.add('hidden');
+        loadingSpinner.classList.remove('hidden');
+    } else {
+        buttonText.classList.remove('hidden');
+        loadingSpinner.classList.add('hidden');
+    }
+}
+
+function resetButton() {
+    setButtonLoading(false);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
